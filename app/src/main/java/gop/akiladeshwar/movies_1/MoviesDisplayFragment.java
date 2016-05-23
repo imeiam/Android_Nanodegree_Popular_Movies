@@ -59,7 +59,6 @@ public class MoviesDisplayFragment extends Fragment implements LoaderManager.Loa
 
         switch(item.getItemId()){
             case R.id.action_settings:
-                Utility.printToast(getContext(),"Settings");
                 startActivity(new Intent(getContext(),SettingsActivity.class));
                 break;
         }
@@ -109,7 +108,6 @@ public class MoviesDisplayFragment extends Fragment implements LoaderManager.Loa
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     Cursor cursor = (Cursor) parent.getItemAtPosition(position);
-                    Utility.printToast(getContext(), cursor.getString(MoviesDisplayFragment.COLUMN_NAME));
                     ImageView imageView = (ImageView)view.findViewById(R.id.imageMovie);
                     ((CallBack)getActivity()).onItemSelected(cursor, imageView);
                 }
@@ -122,7 +120,6 @@ public class MoviesDisplayFragment extends Fragment implements LoaderManager.Loa
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     Cursor cursor = (Cursor) parent.getItemAtPosition(position);
-                    Utility.printToast(getContext(), cursor.getString(MoviesDisplayFragment.COLUMN_NAME));
                     ImageView imageView = (ImageView)view.findViewById(R.id.imageMovie);
                     ((CallBack)getActivity()).onItemSelected(cursor, imageView);
                 }

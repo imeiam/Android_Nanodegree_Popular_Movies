@@ -7,7 +7,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.util.Log;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -33,10 +32,6 @@ public class Utility {
             "Oct" , "Nov" , "Dec" };
     public static final String APP_HASHTAG = "#MovieSensor";
 
-
-    public static void printToast(Context context,String message){
-        Toast.makeText(context,message,Toast.LENGTH_SHORT).show();
-    }
 
     public static String convertDateToDisplayFormat(String date){
 
@@ -93,7 +88,7 @@ public class Utility {
         while(true){
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
-            String finalJSON="";
+            String finalJSON;
             try {
                 final String BASE_URL =
                         "http://api.themoviedb.org/3/movie";
@@ -105,7 +100,7 @@ public class Utility {
                     topOrPopular = "top_rated";
                 }
 
-                final String app_id = "API-KEY-HERE";
+                final String app_id = "APP KEY HERE.";
 
                 Uri builtUri = Uri.parse(BASE_URL).buildUpon()
                         .appendPath(topOrPopular)

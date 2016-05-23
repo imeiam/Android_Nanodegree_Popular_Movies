@@ -1,5 +1,6 @@
 package gop.akiladeshwar.movies_1;
 
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -31,7 +32,7 @@ public class NoInternetFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()){
             case R.id.action_settings:
-                Utility.printToast(getContext(),"Settings");
+                startActivity(new Intent(getContext(),SettingsActivity.class));
                 break;
         }
         return true;
