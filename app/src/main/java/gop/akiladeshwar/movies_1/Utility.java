@@ -36,7 +36,7 @@ public class Utility {
     public static String convertDateToDisplayFormat(String date){
 
         String month = months[Integer.parseInt(date.substring(5,7))-1];
-        String year = Integer.parseInt(date.substring(2,4))+"";
+        String year = date.substring(2,4);
         String finalStr = month+" '"+year; // Mar '16
         return finalStr;
 
@@ -100,7 +100,7 @@ public class Utility {
                     topOrPopular = "top_rated";
                 }
 
-                final String app_id = "a48b2d314a0bc596313f609f4752ba47";
+                final String app_id = "API KEY HERE";
 
                 Uri builtUri = Uri.parse(BASE_URL).buildUpon()
                         .appendPath(topOrPopular)
