@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Vector;
@@ -44,7 +45,10 @@ public class MovieSensorSyncAdapter extends AbstractThreadedSyncAdapter {
         String sortOrder = PreferenceManager.getDefaultSharedPreferences(getContext())
                 .getString(getContext().getResources().getString(R.string.pref_sort_order_key),"popular");
         ArrayList<Movie> moviesList = Utility.getMovieData(getContext(),sortOrder);
-        insertMoviesInToDB(moviesList,sortOrder);
+        if(moviesList.size() == Integer
+                .parseInt(getContext().getResources().getString(R.string.no_of_results_from_api)))
+            insertMoviesInToDB(moviesList,sortOrder);
+        Log.d(LOG_TAG,"Size: "+moviesList.size());
         return;
     }
 
@@ -81,6 +85,7 @@ public class MovieSensorSyncAdapter extends AbstractThreadedSyncAdapter {
             }
             // delete old data
             getContext().getContentResolver().delete(contentUri, null, null);
+            Log.d(LOG_TAG, "Delete: "+contentUri+"Insert: Size - "+ moviesList.size());
             // then insert new data
             getContext().getContentResolver().bulkInsert(contentUri, cvArray);
         }

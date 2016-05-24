@@ -100,7 +100,7 @@ public class Utility {
                     topOrPopular = "top_rated";
                 }
 
-                final String app_id = "APP KEY HERE.";
+                final String app_id = "a48b2d314a0bc596313f609f4752ba47";
 
                 Uri builtUri = Uri.parse(BASE_URL).buildUpon()
                         .appendPath(topOrPopular)

@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Movie Sensor</string>
     <string name="main_title">Popular Movies</string>
-    <string name="no_internet">No Internet Connection.</string>
+    <string name="no_internet">No Internet Connection. Double Tap to rety.</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_movie_details">MovieDetails</string>
 
@@ -57,5 +57,9 @@
 
     <string name="pref_sort_order_key">sort-order</string>
     <string name="pref_sort_order_popular">popular</string>
+
+
+
+    <string name="no_of_results_from_api">20</string>
 
 </resources>

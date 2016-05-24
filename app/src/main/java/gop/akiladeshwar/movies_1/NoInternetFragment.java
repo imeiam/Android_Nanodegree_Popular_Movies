@@ -16,17 +16,17 @@ import android.widget.TextView;
 /**
  * Created by AkilAdeshwar on 18-05-2016.
  */
-public class NoInternetFragment extends Fragment {
-
+public class NoInternetFragment extends Fragment{
 
     Typeface typeface;
+
     public NoInternetFragment(){
         setHasOptionsMenu(true);
     }
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.menu_main,menu);
+        inflater.inflate(R.menu.menu_main, menu);
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -40,12 +40,13 @@ public class NoInternetFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_no_internet,container,false);
 
+        View rootView = inflater.inflate(R.layout.fragment_no_internet, container, false);
         typeface =  Typeface
                 .createFromAsset(getContext().getAssets(),"fonts/dead.TTF");
         TextView textView = (TextView) rootView.findViewById(R.id.no_internet_text);
         textView.setTypeface(typeface);
         return rootView;
+
     }
 }
