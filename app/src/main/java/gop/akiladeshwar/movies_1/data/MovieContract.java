@@ -18,6 +18,8 @@ public class MovieContract {
 
     public static final String PATH_TOP_RATED = "top-rated";
 
+    public static final String PATH_FAVORITE = "favorite";
+
     public static abstract class SuperTableEntry implements BaseColumns{
 
         public static final String COLUMN_NAME = "name";
@@ -26,7 +28,9 @@ public class MovieContract {
         public static final String COLUMN_RELEASE_DATE =  "release_date";
         public static final String COLUMN_VOTE_AVERAGE =  "vote_average";
         public static final String COLUMN_BACKDROP_PATH = "backdrop_path";
-
+        public static final String COLUMN_ID = "col_id";
+        public static final String COLUMN_VIDEOS_JSON = "col_video_json";
+        public static final String COLUMN_REVIEWS_JSON = "col_review_json";
     }
 
     public static final class PopularEntry extends SuperTableEntry {
@@ -68,4 +72,28 @@ public class MovieContract {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
     }
+
+
+    public static class FavoriteEntry extends SuperTableEntry{
+
+
+
+        public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon()
+                .appendPath(PATH_FAVORITE).build();
+
+        public static final String CONTENT_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE+"/"+CONTENT_AUTHORITY+"/"+PATH_FAVORITE;
+        public static final String CONTENT_ITEM_TYPE =
+                ContentResolver.CURSOR_ITEM_BASE_TYPE+"/"+CONTENT_AUTHORITY+"/"+ PATH_FAVORITE;
+
+
+        public static final String TABLE_NAME = "favoritetable";
+
+
+        public static Uri buildTopRatedMovieUri(long id){
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
+    }
+
+
 }

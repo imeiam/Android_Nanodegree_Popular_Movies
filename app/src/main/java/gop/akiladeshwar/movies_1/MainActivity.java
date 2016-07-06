@@ -3,75 +3,127 @@ package gop.akiladeshwar.movies_1;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.view.GestureDetectorCompat;
+import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import gop.akiladeshwar.movies_1.data.MovieContract;
 import gop.akiladeshwar.movies_1.data.MovieDBHelper;
 import gop.akiladeshwar.movies_1.sync.MovieSensorSyncAdapter;
 
 public class MainActivity extends AppCompatActivity implements MoviesDisplayFragment.CallBack,
-        GestureDetector.OnDoubleTapListener,GestureDetector.OnGestureListener{
+        NavigationView.OnNavigationItemSelectedListener,
+        MovieDetailsFragment.DetailsCallBack{
 
 
     public static final String MOVIE_DISPLAY_FRAGMENT = "MOVIE_DISPLAY";
     public static final String NO_INTERNET_FRAGMENT = "NO_INTERNET";
+    public static final String NO_FAV_FRAGMENT = "NO_FAV_FRAGMENT";
+    public static final String MOVIE_DETAIL_FRAGMENT = "MOVIE_DETAIL_FRAGMENT";
     public static final String LOG_TAG = MainActivity.class.getSimpleName();
 
-    private GestureDetectorCompat mDetector;
-
+    public static FragmentManager fragmentManager;
 
     String sortOrder = null;
 
     Typeface titleTypeface;
+    Typeface navItemTypeface;
+    TextView titleTextView;
+
+    Typeface menuItemTypeface;
+    NavigationView navigationView;
+    NoFavFragment noFavFragment;
+    NoInternetFragment noInternetFragment;
+
+    Toolbar toolbar;
+
+    public static ProgressBar spinner;
+    public static Boolean twoPane = false;
+
+
+    LinearLayout twoPaneLayout;
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+
+        super.onCreate(null);
+        setContentView(R.layout.activity_main_nav);
+
+        fragmentManager = getSupportFragmentManager();
+
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        titleTypeface =  Typeface
-                .createFromAsset(this.getAssets(),"fonts/dead.TTF");
-        TextView textView = (TextView) findViewById(R.id.toolbar_title);
-        textView.setTypeface(titleTypeface);
-        int filmCamera = 0x1F3A5;
-        String filmCameraText = new String(Character.toChars(filmCamera));
-        String title = filmCameraText+" "+"Movie Sensor";
-        textView.setText(title);
-
-        // GestureDectection in NoInternetFragment
-        mDetector = new GestureDetectorCompat(this,this);
-        mDetector.setOnDoubleTapListener(this);
-
+        twoPaneLayout = (LinearLayout) findViewById(R.id.second_frame);
+        if(twoPaneLayout==null){
+            twoPane = false;
+        }
+        else {
+            twoPane = true;
+        }
 
         sortOrder = PreferenceManager.getDefaultSharedPreferences(this)
                 .getString(getResources().getString(R.string.pref_sort_order_key),"popular");
 
+        Typeface robotoThinTypeface = Typeface
+                .createFromAsset(getAssets(),"fonts/Roboto-Thin.ttf");
+
+        Typeface robotoCondensedTypeface =  Typeface
+                .createFromAsset(getAssets(),"fonts/RobotoCondensed-Regular.ttf");
+
+        Typeface strictTypeface =  Typeface
+                .createFromAsset(getAssets(),"fonts/strict.ttf");
+
+        Typeface titleTypeface =  Typeface
+                .createFromAsset(getAssets(),"fonts/dead.TTF");
+        Typeface ralewayTypeface =  Typeface
+                .createFromAsset(getAssets(), "fonts/raleway.ttf");
+
+        titleTextView = (TextView) findViewById(R.id.toolbar_title);
+        titleTextView.setTypeface(titleTypeface);
+
+
+        spinner = (ProgressBar) findViewById(R.id.loading_bar);
+        spinner.getIndeterminateDrawable().setColorFilter(0xFFFFEB3B, android.graphics.PorterDuff.Mode.MULTIPLY);
+        spinner.setVisibility(View.INVISIBLE);
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
+
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        navItemTypeface = Typeface.createFromAsset(getAssets(),"fonts/dead.TTF");
+
+        View headerView = navigationView.getHeaderView(0);
+        TextView textView = (TextView) headerView.findViewById(R.id.nav_title);
+        textView.setTypeface(titleTypeface);
+
         MovieSensorSyncAdapter.syncImmediately(this);
-
-
-
-//        CheckDBEntries
-//        int i=0;
-//        while(!cursor.isAfterLast()){
-//            Movie movie = Utility.createMovieObjectFromCursor(cursor);
-//            Log.d(LOG_TAG,i+" - "+movie.getName())
-//            i++;
-//            cursor.moveToNext();
-//        }
     }
 
     @Override
@@ -81,6 +133,7 @@ public class MainActivity extends AppCompatActivity implements MoviesDisplayFrag
         String preferredSortOrder = PreferenceManager.getDefaultSharedPreferences(this)
                 .getString(getResources().getString(R.string.pref_sort_order_key),"popular");
 
+        // Detect changes in sort order
         if(preferredSortOrder!=null && !preferredSortOrder.equals(sortOrder)){
 
             sortOrder = preferredSortOrder;
@@ -91,41 +144,106 @@ public class MainActivity extends AppCompatActivity implements MoviesDisplayFrag
             sortOrder = preferredSortOrder;
         }
 
+//        if(sortOrder.matches("favorites")){
+//
+//        }
+
+        String title;
+        if(sortOrder.matches("popular")) {
+//            int filmCamera = 0x1F525;
+//            String filmCameraText = new String(Character.toChars(filmCamera));
+//            title = filmCameraText + " " + "Popular Movies";
+            title = "Popular Movies";
+            if(twoPaneLayout!=null)
+                twoPaneLayout.setBackgroundResource(R.drawable.poster2);
+            //toolbar.setBackgroundColor();
+        }
+        else if(sortOrder.matches("topRated")) {
+//            int filmCamera = 0x1F31F;
+//            String filmCameraText = new String(Character.toChars(filmCamera));
+//            title = filmCameraText + " " + "Top Rated Movies";
+            title = "Top Rated Movies";
+            if(twoPaneLayout!=null)
+                twoPaneLayout.setBackgroundResource(R.drawable.poster3);
+        }
+        else {
+//            int filmCamera = 0x2764;
+//            String filmCameraText = new String(Character.toChars(filmCamera));
+//            title = filmCameraText + " " + "Favorite Movies";
+            title = "Favorite Movies";
+            if(twoPaneLayout!=null)
+                twoPaneLayout.setBackgroundResource(R.drawable.poster);
+        }
+        titleTextView.setText(title);
+
         MovieDBHelper dbHelper = new MovieDBHelper(this);
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-        Cursor cursor = db.rawQuery("SELECT * FROM "+ MovieContract.PopularEntry.TABLE_NAME,null);
-        if(!cursor.moveToFirst())
-        {
-            if(sortOrder.equals("popular")) {
-                MovieSensorSyncAdapter.syncImmediately(this);
-                Log.d(LOG_TAG, "Table Empty - Starting Sync");
-            }
-        }
-        cursor = db.rawQuery("SELECT * FROM "+ MovieContract.TopRatedEntry.TABLE_NAME,null);
-        if(!cursor.moveToFirst())
-        {
-            if(sortOrder.equals("topRated")) {
-                MovieSensorSyncAdapter.syncImmediately(this);
-                Log.d(LOG_TAG, "Table Empty - Starting Sync");
-            }
-        }
-        String tableName;
+        Cursor cursor;
+        String tableName = null;
         if(sortOrder.matches("popular")){
             tableName = MovieContract.PopularEntry.TABLE_NAME;
         }
-        else{
+        else if (sortOrder.matches("topRated")){
             tableName = MovieContract.TopRatedEntry.TABLE_NAME;
         }
-        String query = "SELECT * FROM "+ tableName;
-        cursor = db.rawQuery(query, null);
+        else{
+            tableName = MovieContract.FavoriteEntry.TABLE_NAME;
+        }
+        // Table is empty - Fetch
+        cursor = db.rawQuery("SELECT * FROM "+ tableName,null);
 
-        if(!cursor.moveToFirst() && !Utility.isNetworkAvailable(this)){
+        removeFragmentByTag(NO_INTERNET_FRAGMENT);
+        removeFragmentByTag(MOVIE_DISPLAY_FRAGMENT);
+        removeFragmentByTag(MOVIE_DETAIL_FRAGMENT);
+        removeFragmentByTag(NO_FAV_FRAGMENT);
 
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.frame, new NoInternetFragment(), NO_INTERNET_FRAGMENT)
-                    .commit();
+        if(!cursor.moveToFirst())
+        {
+            if(sortOrder.matches("favorite")){
+                // If fav is empty load NoFavFragment
 
+                if(twoPane){
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.double_frame, new NoFavFragment(), NO_FAV_FRAGMENT)
+                            .commit();
+                    twoPaneLayout.setBackgroundColor(Color.WHITE);
+                }
+                else {
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.frame, new NoFavFragment(), NO_FAV_FRAGMENT)
+                            .commit();
+                }
+            }
+            else {
+
+                //Fetch and fill table
+                spinner.setVisibility(View.VISIBLE);
+                MovieSensorSyncAdapter.syncImmediately(this);
+                Log.d(LOG_TAG, "Table Empty - Starting Sync");
+
+                String query = "SELECT * FROM "+ tableName;
+                cursor = db.rawQuery(query, null);
+
+                if(!cursor.moveToFirst() && !Utility.isNetworkAvailable(this)){
+                    MainActivity.setSpinnerOff();
+                    if(twoPane){
+                        getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.double_frame,new NoInternetFragment(), NO_INTERNET_FRAGMENT)
+                                .commit();
+                    }
+                    else {
+                        getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.frame, new NoInternetFragment(), NO_INTERNET_FRAGMENT)
+                                .commit();
+                    }
+                }
+                else{
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.frame, new MoviesDisplayFragment(), MOVIE_DISPLAY_FRAGMENT)
+                            .commit();
+                }
+            }
         }
         else{
             getSupportFragmentManager().beginTransaction()
@@ -133,17 +251,6 @@ public class MainActivity extends AppCompatActivity implements MoviesDisplayFrag
                     .commit();
         }
         db.close();
-
-        NoInternetFragment noInternetFragment = (NoInternetFragment) getSupportFragmentManager()
-                .findFragmentByTag(NO_INTERNET_FRAGMENT);
-
-        if(noInternetFragment !=null && Utility.isNetworkAvailable(this)){
-
-            MovieSensorSyncAdapter.syncImmediately(this);
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.frame, new MoviesDisplayFragment(), MOVIE_DISPLAY_FRAGMENT)
-                    .commit();
-        }
     }
 
 
@@ -152,62 +259,126 @@ public class MainActivity extends AppCompatActivity implements MoviesDisplayFrag
         Movie movie = Utility.createMovieObjectFromCursor(cursor);
         Bundle bundle = new Bundle();
         bundle.putParcelable(Movie.MOVIE_TAG, movie);
-        Intent intent = new Intent(this,DetailsActivity.class);
-        intent.putExtra(Movie.MOVIE_TAG, bundle);
-        startActivity(intent);
+
+        if(twoPane) {
+
+            MovieDetailsFragment movieDetailsFragment = new MovieDetailsFragment();
+            movieDetailsFragment.setArguments(bundle);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.second_frame, movieDetailsFragment,MOVIE_DETAIL_FRAGMENT)
+                    .commit();
+        }
+        else {
+            Intent intent = new Intent(this, DetailsActivity.class);
+            intent.putExtra(Movie.MOVIE_TAG, bundle);
+            startActivity(intent);
+        }
     }
 
-    @Override
-    public boolean onSingleTapConfirmed(MotionEvent e) {
-        return false;
-    }
 
-    @Override
-    public boolean onDoubleTap(MotionEvent e) {
-        return false;
-    }
 
+
+
+    @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onDoubleTapEvent(MotionEvent e) {
-        Toast.makeText(this,"Connecting..",Toast.LENGTH_SHORT).show();
-        onResume();
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
+
+        if( id == R.id.nav_popular){
+
+            if(titleTextView!=null){
+                String title = "Popular Movies";
+                titleTextView.setText(title);
+            }
+            PreferenceManager.getDefaultSharedPreferences(this).edit()
+                    .putString(getString(R.string.pref_sort_order_key),"popular")
+                    .commit();
+
+            onResume();
+        } else  if(id == R.id.nav_top_rated) {
+
+            if(titleTextView!=null){
+                String title ="Top Rated Movies";
+                titleTextView.setText(title);
+            }
+
+            PreferenceManager.getDefaultSharedPreferences(this).edit()
+                    .putString(getString(R.string.pref_sort_order_key),"topRated")
+                    .commit();
+            onResume();
+        } else if(id == R.id.nav_fav){
+
+            if(titleTextView!=null){
+                String title = "Favorite Movies";
+                titleTextView.setText(title);
+            }
+
+            PreferenceManager.getDefaultSharedPreferences(this).edit()
+                    .putString(getString(R.string.pref_sort_order_key),"favorite")
+                    .commit();
+            onResume();
+        }
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
+
     @Override
-    public boolean onDown(MotionEvent e) {
-        return false;
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    public static void setSpinnerOff(){
+        if(MainActivity.spinner!=null && MainActivity.spinner.getVisibility()== View.VISIBLE)
+            MainActivity.spinner.setVisibility(View.INVISIBLE);
+    }
+
+    public void removeFragmentByTag(String tag){
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(tag);
+        if(fragment!=null)
+            getSupportFragmentManager().beginTransaction().remove(fragment).commit();
     }
 
     @Override
-    public void onShowPress(MotionEvent e) {
-
-    }
-
-    @Override
-    public boolean onSingleTapUp(MotionEvent e) {
-        return false;
-    }
-
-    @Override
-    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-        return false;
-    }
-
-    @Override
-    public void onLongPress(MotionEvent e) {
-
-    }
-
-    @Override
-    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-        return false;
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-
-        this.mDetector.onTouchEvent(event);
-        return super.onTouchEvent(event);
+    public void restartActivity() {
+        onResume();
     }
 }
+
+
+
+
+
+//Comments
+
+
+//        //Check Fav table
+//
+//        int i=0;
+//        db = dbHelper.getReadableDatabase();
+//        cursor = db.rawQuery("SELECT * FROM "+MovieContract.FavoriteEntry.TABLE_NAME,null);
+//        cursor.moveToFirst();
+//        while(!cursor.isAfterLast()){
+//            Movie movie = Utility.createMovieObjectFromCursor(cursor);
+//            Log.e(LOG_TAG,"Favorites: "+i+" - "+movie.getId()+" : "+movie.getName());
+//            i++;
+//            cursor.moveToNext();
+//        }
+//        db.close();
+
+
+//        //        CheckDBEntries
+//        int i=0;
+//        while(!cursor.isAfterLast()){
+//            Movie movie = Utility.createMovieObjectFromCursor(cursor);
+//            Log.d(LOG_TAG,i+" - "+movie.getName());
+//            i++;
+//            cursor.moveToNext();
+//        }

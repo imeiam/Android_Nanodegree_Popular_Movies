@@ -31,10 +31,14 @@ public class MovieGridAdapter extends CursorAdapter {
 
     Typeface robotoCondensedTypeface;
 
+    Typeface titleTypeface;
+
 
     Typeface strictTypeface;
 
-    public static final String BASE_URL = "http://image.tmdb.org/t/p/w500/";
+    Typeface ralewayTypeface;
+
+    public static final String BASE_URL = "http://image.tmdb.org/t/p/w780/";
 
 
     public static class ViewHolder {
@@ -79,7 +83,10 @@ public class MovieGridAdapter extends CursorAdapter {
                 .createFromAsset(context.getAssets(),"fonts/RobotoCondensed-Regular.ttf");
         strictTypeface =  Typeface
                 .createFromAsset(context.getAssets(), "fonts/strict.ttf");
-
+        titleTypeface =  Typeface
+                .createFromAsset(context.getAssets(),"fonts/dead.TTF");
+        ralewayTypeface =  Typeface
+                .createFromAsset(context.getAssets(), "fonts/raleway.ttf");
 
         return view;
     }
@@ -121,8 +128,8 @@ public class MovieGridAdapter extends CursorAdapter {
 
         viewHolder.dateView.setText(Utility.convertDateToDisplayFormat(releaseDate));
         viewHolder.ratingView.setText(rating + " " + context.getResources().getString(R.string.star_symbol));
-        viewHolder.dateView.setTypeface(robotoCondensedTypeface);
-        viewHolder.ratingView.setTypeface(robotoCondensedTypeface);
+        viewHolder.dateView.setTypeface(ralewayTypeface);
+        viewHolder.ratingView.setTypeface(titleTypeface);
 
         if(viewHolder.nameView !=null) {
             viewHolder.nameView.setTypeface(robotoThinTypeface);

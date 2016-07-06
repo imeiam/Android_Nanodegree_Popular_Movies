@@ -5,6 +5,8 @@ package gop.akiladeshwar.movies_1;
  */
 
 
+// Not Used in Stage 2 of the app.
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;

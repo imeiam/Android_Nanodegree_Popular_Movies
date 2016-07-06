@@ -33,7 +33,7 @@ public class MovieSensorSyncAdapter extends AbstractThreadedSyncAdapter {
     public static final int SYNC_INTERVAL = 60 * 180;
     public static final int SYNC_FLEXTIME = SYNC_INTERVAL/3;
     private static final long DAY_IN_MILLIS = 1000 * 60 * 60 * 24;
-    private static final int WEATHER_NOTIFICATION_ID = 3004;
+//    private static final int WEATHER_NOTIFICATION_ID = 3004;
 
 
     public MovieSensorSyncAdapter(Context context, boolean autoInitialize) {
@@ -44,7 +44,11 @@ public class MovieSensorSyncAdapter extends AbstractThreadedSyncAdapter {
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
         String sortOrder = PreferenceManager.getDefaultSharedPreferences(getContext())
                 .getString(getContext().getResources().getString(R.string.pref_sort_order_key),"popular");
+        Log.e(LOG_TAG,"HERE");
+        if(sortOrder.matches("favorite"))
+            return;
         ArrayList<Movie> moviesList = Utility.getMovieData(getContext(),sortOrder);
+        Log.e(LOG_TAG,"GOT DATA ENTERING INTO DB");
         if(moviesList.size() == Integer
                 .parseInt(getContext().getResources().getString(R.string.no_of_results_from_api)))
             insertMoviesInToDB(moviesList,sortOrder);
@@ -66,6 +70,9 @@ public class MovieSensorSyncAdapter extends AbstractThreadedSyncAdapter {
             movieRow.put(MovieContract.SuperTableEntry.COLUMN_RELEASE_DATE,movie.getReleaseDate());
             movieRow.put(MovieContract.SuperTableEntry.COLUMN_VOTE_AVERAGE,movie.getVote_average());
             movieRow.put(MovieContract.SuperTableEntry.COLUMN_BACKDROP_PATH,movie.getBackdropPath());
+            movieRow.put(MovieContract.SuperTableEntry.COLUMN_ID,movie.getId());
+            movieRow.put(MovieContract.SuperTableEntry.COLUMN_VIDEOS_JSON,movie.getVideosJson());
+            movieRow.put(MovieContract.SuperTableEntry.COLUMN_REVIEWS_JSON,movie.getReviewsJson());
             cVVector.add(movieRow);
         }
 

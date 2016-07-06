@@ -9,6 +9,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.widget.TextView;
 
+
+// Not Used in Stage 2 of the app.
+
 public class SettingsActivity extends AppCompatActivity{
 
 

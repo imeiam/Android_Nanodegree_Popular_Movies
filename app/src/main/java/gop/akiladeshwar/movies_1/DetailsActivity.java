@@ -25,6 +25,5 @@ public class DetailsActivity extends AppCompatActivity {
                     .replace(R.id.frame_detailx,detailsFragment)
                     .commit();
         }
-
     }
 }

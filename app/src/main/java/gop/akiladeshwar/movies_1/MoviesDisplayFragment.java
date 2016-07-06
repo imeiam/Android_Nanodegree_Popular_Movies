@@ -1,6 +1,5 @@
 package gop.akiladeshwar.movies_1;
 
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -34,7 +33,7 @@ public class MoviesDisplayFragment extends Fragment implements LoaderManager.Loa
     View rootView;
     View emptyView;
     MovieGridAdapter movieAdapter = null;
-    private static final int MOVIE_LOADER = 0;
+    public static final int MOVIE_LOADER = 0;
 
     //_ID is 0 - FirstColumn as table inherits BaseColumns
     public static final int COLUMN_NAME = 1;
@@ -43,6 +42,9 @@ public class MoviesDisplayFragment extends Fragment implements LoaderManager.Loa
     public static final int COLUMN_RELEASE_DATE = 4;
     public static final int COLUMN_VOTE_AVERAGE =  5;
     public static final int COLUMN_BACKDROP_PATH =  6;
+    public static final int COLUMN_ID =  7;
+    public static final int COLUMN_VIDEOS_JSON =  8;
+    public static final int COLUMN_REVIEWS_JSON =  9;
 
     public MoviesDisplayFragment(){
         setHasOptionsMenu(true);
@@ -51,17 +53,17 @@ public class MoviesDisplayFragment extends Fragment implements LoaderManager.Loa
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.menu_main, menu);
+        //inflater.inflate(R.menu.menu_main, menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        switch(item.getItemId()){
-            case R.id.action_settings:
-                startActivity(new Intent(getContext(),SettingsActivity.class));
-                break;
-        }
+//        switch(item.getItemId()){
+//            case R.id.action_settings:
+//                startActivity(new Intent(getContext(),SettingsActivity.class));
+//                break;
+//        }
         return true;
     }
 
@@ -97,13 +99,16 @@ public class MoviesDisplayFragment extends Fragment implements LoaderManager.Loa
 
         rootView = inflater.inflate(R.layout.fragment_movie_display,container,false);
         emptyView = inflater.inflate(R.layout.fragment_no_internet,container,false);
+
+        View noFavView = inflater.inflate(R.layout.no_fav,container,false);
+
+
         gridView = (GridView) rootView.findViewById(R.id.gridview);
         movieAdapter = new MovieGridAdapter(getContext(),null,0);
         if(gridView == null){
 
             listView = (ListView) rootView.findViewById(R.id.listView);
             listView.setAdapter(movieAdapter);
-            listView.setEmptyView(emptyView);
             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -113,15 +118,14 @@ public class MoviesDisplayFragment extends Fragment implements LoaderManager.Loa
                 }
             });
         }
-        else{
+        else {
             gridView.setAdapter(movieAdapter);
-            gridView.setEmptyView(emptyView);
             gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     Cursor cursor = (Cursor) parent.getItemAtPosition(position);
-                    ImageView imageView = (ImageView)view.findViewById(R.id.imageMovie);
-                    ((CallBack)getActivity()).onItemSelected(cursor, imageView);
+                    ImageView imageView = (ImageView) view.findViewById(R.id.imageMovie);
+                    ((CallBack) getActivity()).onItemSelected(cursor, imageView);
                 }
             });
         }
@@ -139,9 +143,11 @@ public class MoviesDisplayFragment extends Fragment implements LoaderManager.Loa
         if(sortOrder.matches("popular")){
             contentUri = MovieContract.PopularEntry.CONTENT_URI;
         }
-        else{
+        else if(sortOrder.matches("topRated")){
             contentUri = MovieContract.TopRatedEntry.CONTENT_URI;
         }
+        else
+            contentUri = MovieContract.FavoriteEntry.CONTENT_URI;
 
         return new CursorLoader(getActivity(),
                 contentUri,
@@ -153,6 +159,9 @@ public class MoviesDisplayFragment extends Fragment implements LoaderManager.Loa
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         movieAdapter.swapCursor(data);
+        if(!data.isAfterLast()) {
+            MainActivity.setSpinnerOff();
+        }
     }
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {

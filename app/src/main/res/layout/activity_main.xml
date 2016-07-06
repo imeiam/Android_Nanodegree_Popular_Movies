@@ -37,6 +37,27 @@
 
 </android.support.design.widget.AppBarLayout>
 
-<include layout="@layout/content_main" />
+    <include layout="@layout/content_main" />
+
+    <!--<ProgressBar-->
+
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_gravity="center"-->
+
+        <!--/>-->
+
+
+    <ProgressBar
+        android:id="@+id/loading_bar"
+        android:layout_gravity="center"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/fab_margin"
+        />
+
+
+
 
 </android.support.design.widget.CoordinatorLayout>

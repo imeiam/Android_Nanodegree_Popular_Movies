@@ -20,6 +20,7 @@ public class MovieProvider extends ContentProvider {
 
     static final int POPULAR = 100;
     static final int TOP_RATED = 101;
+    static final int FAVORITE = 102;
 
 
 
@@ -29,6 +30,7 @@ public class MovieProvider extends ContentProvider {
 
         matcher.addURI(authority, MovieContract.PATH_POPULAR, POPULAR);
         matcher.addURI(authority, MovieContract.PATH_TOP_RATED, TOP_RATED);
+        matcher.addURI(authority, MovieContract.PATH_FAVORITE, FAVORITE);
         return matcher;
     }
 
@@ -72,6 +74,22 @@ public class MovieProvider extends ContentProvider {
                 );
                 break;
 
+            case FAVORITE:
+
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        MovieContract.FavoriteEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
+
+
+
+
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -91,6 +109,8 @@ public class MovieProvider extends ContentProvider {
                 return MovieContract.PopularEntry.CONTENT_TYPE;
             case TOP_RATED:
                 return MovieContract.TopRatedEntry.CONTENT_TYPE;
+            case FAVORITE:
+                return MovieContract.FavoriteEntry.CONTENT_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -121,6 +141,15 @@ public class MovieProvider extends ContentProvider {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 break;
             }
+
+            case FAVORITE: {
+                long _id = db.insert(MovieContract.FavoriteEntry.TABLE_NAME, null, values);
+                if (_id > 0)
+                    returnUri = MovieContract.FavoriteEntry.buildTopRatedMovieUri(_id);
+                else
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                break;
+            }
         }
 
         getContext().getContentResolver().notifyChange(uri, null);
@@ -142,7 +171,12 @@ public class MovieProvider extends ContentProvider {
                 break;
             case TOP_RATED:
                 rowsDeleted = db.delete(
-                        MovieContract.PopularEntry.TABLE_NAME, selection, selectionArgs);
+                        MovieContract.TopRatedEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+
+            case FAVORITE:
+                rowsDeleted = db.delete(
+                        MovieContract.FavoriteEntry.TABLE_NAME, selection, selectionArgs);
                 break;
 
             default:
@@ -169,6 +203,11 @@ public class MovieProvider extends ContentProvider {
                 break;
             case TOP_RATED:
                 rowsUpdated = db.update(MovieContract.TopRatedEntry.TABLE_NAME, values, selection,
+                        selectionArgs);
+                break;
+
+            case FAVORITE:
+                rowsUpdated = db.update(MovieContract.FavoriteEntry.TABLE_NAME, values, selection,
                         selectionArgs);
                 break;
 

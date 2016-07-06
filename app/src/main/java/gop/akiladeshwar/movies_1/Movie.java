@@ -17,6 +17,25 @@ public class Movie implements Parcelable{
     String releaseDate;
     String vote_average;
     String backdropPath;
+    String id;
+    String videosJson;
+    String reviewsJson;
+
+    public String getReviewsJson() {
+        return reviewsJson;
+    }
+
+    public void setReviewsJson(String reviewsJson) {
+        this.reviewsJson = reviewsJson;
+    }
+
+    public String getVideosJson() {
+        return videosJson;
+    }
+
+    public void setVideosJson(String videosJson) {
+        this.videosJson = videosJson;
+    }
 
     public String getBackdropPath() {return this.backdropPath;}
 
@@ -64,6 +83,12 @@ public class Movie implements Parcelable{
         this.vote_average = vote_average;
     }
 
+    public String getId() {return this.id;}
+
+    public void setId(String id) { this.id = id; }
+
+
+
     @Override
     public int describeContents() {
         return 0;
@@ -78,6 +103,9 @@ public class Movie implements Parcelable{
         dest.writeString(releaseDate);
         dest.writeString(vote_average);
         dest.writeString(backdropPath);
+        dest.writeString(id);
+        dest.writeString(videosJson);
+        dest.writeString(reviewsJson);
     }
 
 
@@ -89,7 +117,9 @@ public class Movie implements Parcelable{
         releaseDate = in.readString();
         vote_average = in.readString();
         backdropPath = in.readString();
-
+        id = in.readString();
+        videosJson = in.readString();
+        reviewsJson = in.readString();
     }
 
 
