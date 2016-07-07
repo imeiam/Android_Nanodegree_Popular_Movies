@@ -54,9 +54,14 @@ public class MovieDetailsFragment  extends Fragment implements YouTubePlayer.OnI
     ListView reviewListView  = null;
     ArrayList<String> videoKeyList = null;
 
+
+
     public static final String BASE_URL = "http://image.tmdb.org/t/p/original/";
     public static final String POSTER_BASE_URL = "http://image.tmdb.org/t/p/w500/";
 
+
+    public static Boolean youtubeFullScreen=false;
+    public static YouTubePlayer player;
 
 
 
@@ -389,8 +394,16 @@ public class MovieDetailsFragment  extends Fragment implements YouTubePlayer.OnI
     public void onInitializationSuccess(YouTubePlayer.Provider provider,
                                         YouTubePlayer youTubePlayer, boolean b) {
         if(!b){
+            player = youTubePlayer;
             if(videoKeyList!=null)
                 youTubePlayer.cueVideos(videoKeyList);
+
+            youTubePlayer.setOnFullscreenListener(new YouTubePlayer.OnFullscreenListener() {
+                @Override
+                public void onFullscreen(boolean b) {
+                    youtubeFullScreen = b;
+                }
+             });
         }
     }
 

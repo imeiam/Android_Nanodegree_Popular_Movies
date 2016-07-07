@@ -331,7 +331,14 @@ public class MainActivity extends AppCompatActivity implements MoviesDisplayFrag
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            Fragment fragment = getSupportFragmentManager().findFragmentByTag(MOVIE_DETAIL_FRAGMENT);
+            if(fragment!=null && MovieDetailsFragment.youtubeFullScreen && MovieDetailsFragment.player!=null){
+                MovieDetailsFragment.player.setFullscreen(false);
+                MovieDetailsFragment.youtubeFullScreen = false;
+            }
+            else {
+                super.onBackPressed();
+            }
         }
     }
 
@@ -350,6 +357,7 @@ public class MainActivity extends AppCompatActivity implements MoviesDisplayFrag
     public void restartActivity() {
         onResume();
     }
+
 }
 
 
