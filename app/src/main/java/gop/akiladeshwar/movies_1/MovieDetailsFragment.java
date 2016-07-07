@@ -363,6 +363,7 @@ public class MovieDetailsFragment  extends Fragment implements YouTubePlayer.OnI
                 }
             }
             else {
+
                 View view = LayoutInflater.from(context).inflate(R.layout.listitem_error_message, null);
                 if(view!=null){
                     //U+1F64F
